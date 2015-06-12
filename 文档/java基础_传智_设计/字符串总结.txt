@@ -1,0 +1,86 @@
+判断：
+	isEmpty		length为0返回true
+	length		
+	
+	matches			是否匹配给定正则
+	regionMatches	两字符串指定区域是否相等
+		-			加上大小写忽略
+	
+	startsWith		是否以某前缀开始
+		-			加上指定位置
+	endsWith		后缀
+	
+比较：
+	equals				比较内容
+	equalsIgnoreCase	不区分大小
+	contains			是否包含指定char值序列
+	contentEquals		与指定char值序列比较
+		-				与StringBuffer比较
+	
+	
+查询：
+	charAt(int index)	根据索引返回char值
+	codePointAt			返回索引处字符
+	codePointBefore		返回索引处前字符
+	codePointCount		返回索引间字符（代码点）数
+	
+	compareTo			按字典顺序比较
+	compareToIgnoreCase	不分大小写
+		
+	hashCode			
+	
+	indexOf				（int）根据指定字符查第一次索引
+		-				加上搜索位置
+		-				根据指定子串查第一次出现位置
+		-				加上搜索位置
+	lastIndexOf			最后一次
+		-
+		-
+		-
+		
+	offsetByCodePoints	给定位置偏移多少后的索引
+	
+
+转化：
+	copyValueOf		将字符数组转化为字符串。操作和返回都是参数，所以是用String调用；并且参数必须是局部变量。
+	copyValueOf		加上初始位置和长度
+	toString		返回此对象本身
+	toCharArray		字符串转字符数组
+	
+	toLowerCase		用默认语言环境转小写
+		-			用指定语言环境
+	toUpperCase		用默认语言环境转大写
+		-			用指定语言环境
+		
+	valueOf			boolean 转字符串
+		-			char 转字符串
+		-			char数组转字符串
+		-			char数组的偏移量和长度转字符串
+		-			double 转字符串
+		-			float 转字符串
+		-			int转字符串
+		-			long转字符串
+		-			Object转字符串
+		
+	getBytes	用默认字符集将String编码为byte序列
+		-		用给定字符集将String编码为byte序列
+		-		用给定字符集引用将String编码为byte序列
+		
+
+操作：
+	concat		连接
+	format		用指定的格式字符串和参数返回一个格式化字符串
+		-		加上语言环境
+	
+	getChars	将字符串指定位置复制到指定字串的某开始位置。
+	intern		返回字串的规范化形式
+	replace		返回用B替换字串中的A
+		-		返回用B引用替换字串中的A引用
+	replaceAll	用给定字串替换本身中所有满足正则的字符
+	replaceFirst用给定字串替换本身中满足正则或另参字串的第一个字串
+	split		通过给定字符串拆分字串
+		-		加上次数控制参数n;拆分n-1次，数组长度也不会大于n;若n<0
+	subSequence	截取指定始终位置子字串
+	substring	截取指定始终位置子字串
+		-		截取指定开始位置子字串
+	trim		去除空白

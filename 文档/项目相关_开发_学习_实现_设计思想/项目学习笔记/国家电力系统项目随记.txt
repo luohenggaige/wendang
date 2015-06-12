@@ -1,0 +1,243 @@
+以管理资源为背景，以设备信息管理为核心，其它管理为辅助的业务数据管理和查询系统，以WEB的形式直接录入系统网页提交为平台
+
+模块:(按照先后顺序)
+	1>系统管理
+		1>运行监控	1
+		2>数据字典	1
+		3>用户管理	1
+		4>角色管理	1
+	2>用户登录		1
+	3>JBPM工作流		4
+	4>分页+报表		1
+	5>图形报表		1
+	还有搭框架		1
+开发模块包括技术设施维护管理、站点管理、图书资料信息管理、审批流转、系统管理5个功能模块
+
+
+一：导包，包结构
+二：建数据库建表
+	一般不用hibernate自动创建表，因为字段后面的括号会默认成255等，有时只要50就行
+		问题：	可视化的数据库的文件夹不一样。解决:版本不一样
+			建数据库的操作没有结果	解决:刷新
+
+
+三：持久层:表的javaBean	(几个字段对应几个属性)
+	写domain的一个对应ElecText表字段的ElecText类(javaBean)，因为一个表对应一个类，数据库中字段是实体，domain中的字段是标识和操作；并在javaBean所在目录下配置ElecText.hbn.xml(Advanced Templates类型创建)
+问题：	1>javaBean是什么	?具有操作表(数据库中的实体)的功能的类
+	2>ElecText implements java.io.Serializable为什么继承它?
+	写完javaBean后加的@SuppressWarnings("serial")是什么	？注解开发吗
+			
+
+四：javaBean的映射(表与javaBean的配置)：ElecText.hbn.xml
+	配置hbn的约束要找其核心类hibernate3.jar——>org.hibernate——>hibernate-mapping-3.0.dtd头三行，约束完后，用对象		映射表，对象中的属性映射	表的字段
+
+
+五：写hibernate的配置:hibernate.cfg.xml
+	核心类hibernate3.jar——>org.hibernate——>hibernate-configuration-3.0.dtd头三行
+	写这个配置没有提示是因为没有用Myeclipse的默认方式打开，关了它会重新加载，重新打开就行了
+	
+1>?  链接数据库信息<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+		<property name="hibernate.connection.url">jdbc:mysql://localhost:3309/elec?useUnicode=true&amp;characterEncoding=utf8</property>
+		<property name="hibernate.connection.username">root</property>
+		<property name="hibernate.connection.password">root</property>
+		(不用记)都是连接JDBC的
+2>?  <!-- 其他的配置 -->	写方言
+	1:	<property name="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</property>(方言在hibernate3.jar——>org.hibernate——>dialect 方		言的区别MySQLDialect,MySQLInnoDBD...是前者的子类,可以支持高级别的事务控制,用工作流的时候必须用它,也更严格)
+	2:<property name="hibernate.hbm2ddl.auto">update</property>hibernate.hbm2ddl这句是:是否通过hibernate创建表,映射操作;一般属性是update,意思	  是有表我就操作没表我就创建.
+	3:	<property name="hibernate.show_sql">true</property>我们开发需要在控制台显示SQL语句;
+	4:加校验,5.0不用加,6.0要加
+问题：	1>标签<hibernate-configuration>干什么用的
+	2>标签<session-factory>干什么用的
+	3>标签<property name="hibernate.connection.driver_class(url,username,password)">干什么用的
+	5:加载映射文件
+		<mapping resource="cn/itcast/elec/domain/ElecText.hbm.xml"/>?加载映射文件才能现行把它加载了?加载它就可以操作hbn.xml了
+
+
+六：config配置文件夹（一般配置都可以放这,用Source Folder这个选项建文件夹）
+
+
+
+
+
+七：test包测试文件,写一个Junti
+	1>?	Configuration configuration = new  ();什么意思?
+	2>加载类路径hibernate.cfg.xml和映射文件:	configuration.configure();
+
+	3>创建SessionFactory:			SessionFactory sf = configuration.buildSessionFactory();干嘛用的?
+	4>打开Session:				Session s = sf.openSession();
+	5>开启事务:					Transaction tr = s.beginTransaction();(这几个操作应该比较熟悉)
+	6>提交事务:					tr.commit();
+	7>关闭Session:				s.close();
+	
+	然后操作对象并注意操作数据库,对象是ElecText
+	8>创建对象并操作:			ElecText elecText = new ElecText();
+	9>id不用变不用管它直接名称:		elecText.setTextName("测试Hibernate名称123");
+	10>当天日期new Date():			elecText.setTextDate(new Date());
+	11>什么意思:				elecText.setTextRemark("测试Hibernate备注123");
+	12>最后决定seva就可以了:		s.save(elecText);
+执行hibernate测试类,结果是数据库字段的数据被写入
+
+错误1:找不到ElecText.hbn.xml
+	解决:将hibernate.cfg.xml的最下面的关联ElecText.hbn.xml的配置删了,保存再用右键用Open weth-->Myhibernate打开将ElecText.hbn.xml拖拽到maping框中,这样路径绝对不会错
+
+八:导入修改log4j
+	1>测试完毕会有一个警告,导入log4j,将级别改了,一般不要警告,改为错误就行了,将warn改为Error
+	2>除了2-5句和级别句其它前面全部加#号.
+
+错误2:myeclipse连接数据库失败,密码错误,提示为:access denied for user'root'@'localhost'(using password:yes)
+	解决:将Hibernate.cfg.xml的<property name="hibernate.connection.password">999</property>密码改为数据库密码即可
+
+
+九:DAO层(hibernate层完了后写)
+	DAO是操作domain(持久化对象)的,用类操作;因为降低耦合性,面向接口的编程所以还有一个接口.
+		1>有一个持久化对象就需要对应一个DAO来操作这个对象(完成CRUD,也就是增删改查)
+		2>	当有多个表的时候就会有多个DAO,如果多个DAO的功能一样的话,再次用到抽取思想:将接口共同的功能抽取到一个公共接口中,再定义一个公共实现类继承它		,如果再有相同功能的表的DAO就直接继承公共实现类和实现公共接口就行了.
+			?泛型传递与传实现类泛型?
+	3>	原本是实现类实现接口,后来抽取后接口继承公共接口,然后实现类实现接口加上实现类继承公共实现类,公共实现类有实现公共接口;
+		也就是实现类有一个继承和一个实现,继承的是可扩展之后的,实现的是固定之后的.顶层就是公共接口.
+	4>	公共接口里的功能方法体,保存是怎么保存的--->继承hibernateDaoSupport(由Spring整合hibernate时提供)就能轻松解决
+		方法体:调用模板再调用方法	this.getHibernateTemplate().save();
+		但是需要Spring的配置把模板激活才能执行,在src下建beans.xml(Spring容器:所有的控制反转,依赖事务,数据管理,AOP都可以在此配置)
+		通过beans.xml来操作模板
+
+
+十:Spring闪亮登场
+	用Spring容器来创建对象,IOCDI,事务控制;建:在config中用XML(Advanced Templates选项)创建beans.xml,约束在资料中复制,有四个xsd:控制版本,注解,事务,切面.
+	一:对于控制反转和依赖注入有两种方式:	1>通过配置文件完成注入
+						2>(创建表和注解)通过注解完成
+						3>加组件对注解的支持:开启对注解的支持，组件的自动扫描	控制层@Controller 业务层@Service DAO层@Repositiry
+						4>1:控制层<context:component-scan base-package="cn.itcast.elec"/>
+						5>?先没写
+						6>3:创建SessionFactory工厂，这是spring整合hibernate的核心
+						7>4:声明事务管理器(切面)
+						8>5:注解，在Service的类或者是Service的方法上，添加@transcational(),控制事务
+						9>配置文件，管理事务
+	要注入工厂才能创建模
+	二:写完配置写源码
+		1>公共实现类
+			2>关联Hibernate源码(spring-framework-3.0.2RELEASE.zip)
+		3>接口
+		4>总接口
+		5>实现类
+		6>测试类
+			7>在Hibernate中配置<!-- 使用hibernate的方式提交事务（自动提交）-->
+						<property name="hibernate.connection.autocommit">true</property> 
+
+十一:Service层
+	1>:一接口一实现类,用junit测试
+
+十二:控制层:MVC
+	1>Action类和BaseAction
+问题:都是干嘛用的?
+	2>在cn.itcast.elec.util包下创建公用类（泛型转换)
+	3>在src下创建struts2的配置文件struts.xml
+	4>在web.xml中添加配置
+	5>导入css，js，jsp，image进行测试,使用system/textAdd.jsp进行测试
+项目框架结束
+
+一:底层方法封装
+	1>在路径cn.luosong.elec.dao.impl;下建CommonDaoImpl类来封装底层方法
+
+
+二:首页功能完善(问题:怎么在类中跳转方法)
+	1>首页显示 
+		浏览器输入一个项目地址,直接找web.xml,根据里面的<welcome-file>index.jsp</welcome-file>来跳转.
+		1>真正执行跳转功能的是index.jsp而不是web.xml(它是跳转到index.jsp),index.jsp提供用户名和密码的登录页面(其实就是对用户名和密码的操作)
+		2>更正文件夹:jsp文件应该放在WEB-INF下,因为一般.jsp都是隐藏起来,都要通过指定的跳转链接去访问,这样就避免了在浏览器地址输入其它登录后的页面直接访问了,方便		    我们做权限控制.menu首页的操作,system事务管理,还有workflow;将这些放到WEB-INF下的page下,
+		  文件位置改了,也要将WEB-ROOT下的index.jsp中转到实际显示的index.jsp的路径改了,也就是WEB-ROOT下的index.jsp只是转发它有指定的隐藏路径,实际显示index.jsp位			    置的就在隐藏路径
+		3>从登录页面到登录实现:在实际index.jsp中有一个button,它执行的是一个事件:onclick="checkFunction()",它跳转到checkFunction(),是一个提交的操作,方法体内是一			    个return check();跳转到check()方法,里面判断用户名是否为空,不为空就提交第一个表单:theForm.submit();var theForm = document.forms[0](数组表示第一个表		    	    单);提交的是/menu/home.jsp表单.点击登按钮但是不能访问进去,因为不能用jsp来控制,需要通过连接去访问,这个登录在讲完用户角色权限的时候去讲.
+		4>先将跳转路径改为do访问,开始写登录操作相关的Action.
+问题:为什么改成do,用do来访问?(配置struts的URL访问的后缀，改成do;<constant name="struts.action.extension" value="do">)
+	
+	2>登录按钮和页面显示
+		1>登录功能的Action:ElecMenuAction,再将功能与数据分离而有了Action下的form用于作为模型驱动的对象,专门接收我的参数(比如登录相关的)
+问题:servlet和Action的运行原理和流程?
+		2>创建ElecMenuAction继承BaseAction,其泛型类型就是javaBean的MenuForm.写Java中对应数据库表字段的javaBean(MenuForm).写ElecMenuAction中的方法.
+问题:BaseAction是什么?
+		3>写struts配置,完成登录按钮的功能实现.
+		4>使用框架FRAMESET完成加载页面的布局
+			1>frameSpacing=0 rows=82,*	表示按行分,上面82,*就是剩下的,<FRAME>表示分了之后加载显示的内容
+			2>frameSpacing="0" frameBorder="0" cols="153,1%,*	表示按列分,第一列153;第二列%1;*是剩下的第三列
+		5>写ElecMenuAction中对应页面切分的方法public String left(){}等.
+		6>加上切分的struts配置
+	3>切分中有一个首页标题块title.jsp,里面有三个功能点,
+		1>操作者加日期(做完登录再加载)
+		2>返回首页:在title.jsp中原是一个超链接,但是隐藏后不能访问了,用.do的方式:href="ElecMenuAction_loading.do" target(表示显示在哪个区域上,目标的意思)		    ="mainFrame";mainFrame在这又是一个转发到home.jsp中切分的显示框frame;
+		3>重新登录
+	4>切分后的左侧菜单的树形结构
+		1>采用ztree(jquery的插件),需要加载jquery的核心类jquery-1.4.2.js和ztree的jquery-ztree-2.5.js还有css样式(否则就是一整个竖排)
+			加载完这三个后只要再加上一个table就可以了
+			<TABLE border=0 width="20">
+				<TR>
+					<TD width=340px align=center valign=top>
+					<div class="zTreeDemoBackground">			div是一个样式
+						<ul id="menuTree" class="tree" ></ul>		ul是一个组件(容器),ztree加载后的树形菜单就是放在这个ul的组件中,class是												一个样式对应css中的rel="stylesheet",把它去掉也是一竖排.id就是一个自主命												名标识
+					</div>		
+					</TD>
+				</TR>
+			</TABLE>
+		2>ztree.js逻辑业务实现
+			树形结构的显示主要靠的是$("#menuTree").zTree(menu.setting, privilegeDate);这行代码
+			jquery都是用刀了儿符$去调
+			var menu = {名:{值},名:方法名(){}};	json格式是js的通用格式
+		3>操作实现menuData.js
+	5>左侧框架缩进menu/change.jsp
+	6>显示站点运行情况和设备运行情况，使用iframe框架进行加载menu/loading.jsp
+		1>对两个框架的大化:功能具有
+			function  shiftiframe(value)
+			{    
+	  		  if(value==1){
+	   		     if(document.all.station.width==500)
+					{
+						document.all.station.width=1100;
+						document.getElementById("devtd").style.display="none";
+					}
+					else if(document.all.station.width==1100)
+					{
+						document.all.station.width=500;
+						document.getElementById("devtd").style.display="";
+					}
+			    }
+	   		 else{
+	     			if(document.all.dev.width==500)
+					{
+						document.all.dev.width=1100;
+						document.getElementById("stationtd").style.display="none";
+					}
+					else if(document.all.dev.width==1100)
+					{
+						document.all.dev.width=500;
+						document.getElementById("stationtd").style.display="";
+					}
+	    			}
+			}
+		2>/**添加10分钟后自动刷新页面，站点和设备运行的实时性*/
+			window.onload=function(){
+				setTimeout('refresh10()',1000*60*10) ;
+   			 }
+			function refresh10(){
+				window.location.reload();
+			}
+	3>运行监控(actionIndex.jsp)
+		1>三层流层跑通(三层注入相关联)
+		2>struts配置	<action name="elecCommonMsgAction_*" class="elecCommonMsgAction" method="{1}">
+				<result name="home">/WEB-INF/page/system/actingIndex.jsp</result>
+		3>menuData(将左侧菜单的树状结构mid:'ap',pid:'am',图片路径,点击显示页面的转发路径整合在一起)
+		具体功能实现:检索显示并回显
+			1>先在Action中写操作Service对象调用Service中的方法去检索并向Action返回对象
+			2>将拿到的对象压入栈顶支持回显
+				将对象压入栈顶写到util公用方法中
+			3>在运行监控页面的jsp中写拿栈顶数据的代码(jsp中可以写拿取栈顶数据,时间显示方法,鼠标悬停显示全部的功能)
+问题:div页面切分的分隔符,是页面中的区域,可以在里面定义属性用js进行控制;script,td表示行tr表示列;
+				1>jsp中td中有事件调用方法,方法在showText.js(鼠标悬停)中,还有一个showText.css样式,主要控制颜色
+				2>字数剩余显示在limitedTextarea.js中
+			4>保存
+				1>执行一个事件onclick="checkchar()",再执行一个方法checkchar(){},返回提交运行监控里两个表单所在的From2
+				2>保存并重定向(回显新时刻的数据):在struts中配置	<result name="save" type="redirectAction">
+											<param name="actionName">elecCommonMsgAction_home.do</param>
+										</result>
+				3>同样用Action操作Service对象调用其方法(传入javaBean作为参数),方法内判断查询运行监控表是否为空来决定是新增还是更新
+			5>在客户页面产生回车标签,在alermStation.jsp和alermDavice.jsp中的<tr>编写
+			6>FCK文本编辑器:网页内部文本器
+				1>关闭js校验,以后开发extjs或者jquery easyUI的项目都这样配置
+				2>CKEditor不支持上传,需要CKFinder整合

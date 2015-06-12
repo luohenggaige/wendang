@@ -1,0 +1,255 @@
+11月9日假期总结
+
+一.接口(继承-->抽象-->接口)
+	1.由来：
+		java 将原来的多继承改良为了多实现，为什么要改良？因为多继承JVM会产生
+		不确定性。可以理解为多继承换了一种说法
+
+	2.由继承发展到抽象类，由抽象类发展到接口，所以接口有前两者的特性
+		1>有继承的特性：  需重写方法才能实现
+		2>有抽象类的特性：属于抽象类，没有方法体
+						  实现接口必须重写所有抽象方法
+
+	3.本身的特性
+		1>只能有抽象类
+		2>成员变量修饰符默认且必须是： public static final 
+		  抽象方法修饰符默认且必须是： public abstract 
+		3>没有构造函数
+		4>格式关键字
+			1>声明一个接口 interface Inter {
+						   }
+			2>实现一个接口 class Demo implements Inter{
+						   }
+	4.补充：
+		1> class Demo extends Fu implements Inter1{			//先继承再实现，是重要的应用
+		   }												//继承代表它的基本功能，实现代表它的扩展功能
+		2> class Demo implements Inter1,Inter2{				//同时实现多个接口
+		   }
+		3> class Inter extends Inter1，Inter2{				//接口可以多继承
+		   }
+
+二.多态
+	1>由来：
+		先回到抽象类的理解：有很多对象都具有某一种功能，比如吼叫的功能，将这个功能抽取出来，继承之后
+		由子类全部覆盖并创建对象调用具体实现。
+		
+		现在想要更灵活一点，直接创建父类引用指向子类的具体实现：
+		就像原来是动物会吼叫，子类实现后是一只猫在吼叫
+		而多态是一只动物--猫在吼叫。
+
+		然后将抽象升级为接口，这样就可以多个接口指向一个子类对象，因为其多实现；也可以一个接口指向多个对象；
+		这样既可以让对象做许多事，也可以提高接口重用性。
+
+	2.由此可知多态前提
+		1>有继承或实现
+		2>也需要覆盖
+		3>父类引用指向子类对象
+	  
+	  
+	  例//接口重用性
+		interface Animal {   
+			void shout();     
+		}
+
+		class Cat implements Animal {
+			public void shout() {
+				System.out.println("喵喵……");
+			}
+		}
+		class Dog implements Animal {
+			public void shout() {
+				System.out.println("汪汪……");
+			}
+		}
+		public class Example14 {
+			public static void main(String[] args) {
+				Animal an1 = new Cat();                  
+				Animal an2 = new Dog();					
+				animalShout(an1);
+				animalShout(an2);
+			}
+			public static void animalShout(Animal an) {
+				an.shout();
+			}
+		}
+
+	  例//多接口单对象
+		interface Animal {   
+			void shout();     
+		}
+
+		interface Inter
+		{
+			void eat();
+		}
+		class Dog implements Animal,Inter {
+			public void shout() {
+				System.out.println("汪汪……");
+			}
+			public void eat(){
+				System.out.println("狗吃肉");
+			}
+			public void method(){
+				System.out.println("看家");				//对象特有功能
+			}
+		}
+
+		public class Duotai1 {
+			public static void main(String[] args) {                 
+				Animal an1 = new Dog();					
+				Inter in1 = new Dog();
+				animalShout(an1);
+				interEat(in1);
+			}
+			public static void animalShout(Animal an) {
+				an.shout();
+			}
+
+			public static void interEat (Inter in){
+				in.eat();
+			}
+		}
+		
+	3.多态的利与弊
+		1>提高了代码的可扩展性和可维护性
+		2>不能访问子类特有的功能，由此产生了转型
+		3>转型
+		向上转型：
+			为了使用多态。
+		向下转型：
+			为了使用子类特有功能。
+
+	4.多态中的成员
+		1>成员方法：编译看左边, 运行看右边
+		2>成员变量和静态成员：编译看左边, 运行看左边
+
+三.内部类
+	1.由来
+		再一次打破了单继承的局限性
+		因为内部类可以继承实现其它类
+		而外部类可以特有方式访问到内部类，并调用其方法
+
+	2.成员内部类
+		1>在成员位置
+		2>可以被 private 和 static 修饰,被静态修饰即为静态内部类。
+		3>格式:外部类名.内部类名 引用名称 = new 外部类对象().内部类对象();
+				 Outer.Inner oi = new Outer().new Inner();//outer代表外部类,Inner代表内部类
+
+	3.静态内部类
+		格式：
+			外部类名.内部类名 引用名称 = new 外部类对象.内部类对象();
+			Outer.Inner oi = new Outer.Inner();
+
+	3.局部内部类
+		1>在局部位置(方法中)
+		2>只能在所在成员方法中实例化
+		3>只能访问所在方法的 final 修饰的局部变量
+			因为局部是在栈中，会随方法弹栈，而里面的类可在堆中，被 final 修饰后就不会弹栈了
+			也可以认为局部内部类访问局部变量实质是局部内部类里面的方法访问
+			就像是局部变量访问成员变量一样，作用域不够
+		4>修饰符
+			final 和 abstract
+		5>静态方法的局部内部类只能访问外部类的静态成员。
+	4.匿名内部类
+		1>匿名在局部位置
+		2>格式
+			new 外部类名或接口名(){
+				覆盖方法
+			}.匿名内部类方法名();
+		3>有继承或实现
+
+	  例：成员内部类
+	    class ChengYuan										//匿名内部类的前提示例
+		{
+			public static void main (String[]a){
+			Wai w1 = new Wai();
+			w1.method();
+			}
+		}
+		class Wai{
+			private int a = 10;
+			class Nei extends Demo							//对类进行描述{
+				void show(){
+					System.out.println(a);
+				}
+			}
+			public void method (){
+				Nei n1 = new Nei();							//再创建对象
+				n1.show();									//调用
+			}
+		}
+		abstract class Demo{
+			abstract void show ();
+		}
+		转匿名
+		class ChengyuanNiming{
+			public static void main (String[]a){
+			Wai w1 = new Wai();
+			w1.method();
+			}
+		}
+		class Wai
+		{
+			private int a = 10;
+			public void method (){
+				//匿名内部类：直接创建加描述加调用
+				//为何要在方法中：
+				//因为如果匿名内部类的前身是成员内部类(如此例),
+				//外部类访问内部类时是用成员方法，在外部类成员方法中创建实例化内部类
+				//所以随创建，描述调用都在外部成员方法内。
+				//而如果前身是局部内部类，只能在所在成员方法中实例化
+				//实体与实例化都在成员方法中
+				new Demo(){
+					void show(){
+						System.out.println(a);
+					}
+				}.show();
+			}
+		}
+
+		abstract class Demo{
+			abstract void show ();
+		}
+	  例：局部内部类转匿名内部类
+		class Jubu{
+			public static void main(String[]a){
+				Outer o1 = new Outer ();
+				o1.method();
+			}
+		}
+		class Outer {
+			public void method(){
+				class Inner implements Inter {			//实体在匿名当中
+					public void show1(){
+						System.out.println("show1");
+					}
+				}
+				Inner i1 = new Inner();					//必须在所在成员方法内实现
+				i1.show1();
+			}
+		}
+		interface Inter {
+			public abstract void show1();
+		}
+		转匿名
+		class JubuNiming{
+			public static void main(String[]a){
+				Outer o1 = new Outer ();
+				o1.method();
+			}
+		}
+		class Outer {
+			public void method(){
+				new Inter {			//实体在匿名当中
+					public void show(){
+						System.out.println("show");
+					}
+				}.show();
+			}
+		}
+		interface Inter {
+			public abstract void show();
+		}
+		总之匿名的创建描述(实例化)调用都在成员方法内
+		
+			

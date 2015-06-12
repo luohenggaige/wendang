@@ -1,0 +1,2 @@
+No bean named 'cn.luosong.elec.service.impl.ElecCommonMsgServiceImpl' is defined
+没有定义ElecCommonMsgServiceImpl这个类,就是没有写这个
