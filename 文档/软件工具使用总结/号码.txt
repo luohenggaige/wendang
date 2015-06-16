@@ -1,25 +1,12 @@
-思源Git
+个人思源Git
 本地标识：name：luoheng($ git config --global user.name "Your Name")
 email:235($ git config --global user.email "email@example.com")
 hub：name：luohenggaige
 gaigegit33
 
-新网
-235@qq
-g9
-管理平台：PMwiHtu0
-
-隆投贷
-zhiyan
-zhiyan
-
-房通
-133
-gaigef
-
-优酷
-235@
-g9
+游戏视频git
+xxgv(296)
+gamevideo123
 
 豆丁
 zhiyanranshao
@@ -30,6 +17,23 @@ gaige967326
 数据库
 yingtaob
 yingtaob
+
+优酷
+235@
+g9
+
+房通
+133
+gaigef
+
+隆投贷
+zhiyan
+zhiyan
+
+新网
+235@qq
+g9
+管理平台：PMwiHtu0
 
 新浪
 133
